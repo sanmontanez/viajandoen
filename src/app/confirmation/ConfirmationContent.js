@@ -76,13 +76,47 @@ const ConfirmationContent = () => {
             <p className="mb-2"><span className="font-bold">Name:</span> {ticket.passengerName}</p>
             <p><span className="font-bold">Email:</span> {ticket.passengerEmail}</p>
           </div>
+       
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-3">Flight Details</h2>
-            <p className="mb-2"><span className="font-bold">Flight Number:</span> {ticket.flightNumber}</p>
-            <p className="mb-2"><span className="font-bold">Departure:</span> {ticket.departure}</p>
-            <p className="mb-2"><span className="font-bold">Arrival:</span> {ticket.arrival}</p>
-            <p className="mb-2"><span className="font-bold">Airline:</span> {ticket.airlineNames}</p> {/* Mostrar el nombre de la aerolínea */}
-          </div>
+  <h2 className="text-2xl font-semibold mb-3">Flight Details</h2>
+  
+  {ticket.flights && ticket.flights.length > 0 ? (
+    // Nuevo formato con múltiples vuelos
+    ticket.flights.map((flight, index) => (
+      <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4">
+        <h3 className="text-xl font-semibold mb-2">
+          {flight.type === 'OUTBOUND' ? 'Outbound Flight' : 'Return Flight'}
+        </h3>
+        
+        {flight.segments && flight.segments.length > 0 ? (
+          flight.segments.map((segment, segmentIndex) => (
+            <div key={segmentIndex} className="mb-3 border-b pb-3 last:border-b-0">
+              <p className="mb-2"><span className="font-bold">Flight Number:</span> {segment.flightNumber}</p>
+              <p className="mb-2"><span className="font-bold">Origin:</span> {segment.origin}</p>
+              <p className="mb-2"><span className="font-bold">Destination:</span> {segment.destination}</p>
+              <p className="mb-2"><span className="font-bold">Departure:</span> {segment.departure}</p>
+              <p className="mb-2"><span className="font-bold">Arrival:</span> {segment.arrival}</p>
+              <p className="mb-2"><span className="font-bold">Airline:</span> {ticket.airlineNames}</p>
+            </div>
+          ))
+        ) : (
+          <p>No segments found for this flight.</p>
+        )}
+      </div>
+    ))
+  ) : (
+    // Formato anterior para compatibilidad
+    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+      <h3 className="text-xl font-semibold mb-2">Flight</h3>
+      <p className="mb-2"><span className="font-bold">Flight Number:</span> {ticket.flightNumber}</p>
+      <p className="mb-2"><span className="font-bold">Origin:</span> {ticket.origin}</p>
+      <p className="mb-2"><span className="font-bold">Destination:</span> {ticket.destination}</p>
+      <p className="mb-2"><span className="font-bold">Departure:</span> {ticket.departure}</p>
+      <p className="mb-2"><span className="font-bold">Arrival:</span> {ticket.arrival}</p>
+      <p className="mb-2"><span className="font-bold">Airline:</span> {ticket.airlineNames}</p>
+    </div>
+  )}
+</div>
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-3">Payment Details</h2>
             <p className="mb-2"><span className="font-bold">Transaction ID:</span> {ticket.transactionId}</p>

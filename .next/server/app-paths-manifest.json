@@ -1,7 +1,9 @@
 {
-  "/api/createBooking/route": "app/api/createBooking/route.js",
-  "/api/payment-response/route": "app/api/payment-response/route.js",
-  "/api/sendEmail/route": "app/api/sendEmail/route.js",
+  "/results/page": "app/results/page.js",
+  "/api/searchFlights/route": "app/api/searchFlights/route.js",
+  "/payment-response/page": "app/payment-response/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/page": "app/page.js",
   "/confirmation/page": "app/confirmation/page.js",
-  "/payment-response/page": "app/payment-response/page.js"
+  "/consult/page": "app/consult/page.js"
 }

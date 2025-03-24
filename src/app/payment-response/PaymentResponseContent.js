@@ -49,14 +49,37 @@ const PaymentResponseContent = () => {
           const ticketDetails = {
             passengerName: `${storedData.passengerData.firstName} ${storedData.passengerData.lastName}`,
             passengerEmail: storedData.passengerData.email,
-            flightNumber: storedData.flightData.map(flight => flight.itineraries[0].segments.map(segment => segment.number).join(', ')).join(', '),
-            departure: storedData.flightData.map(flight => flight.itineraries[0].segments.map(segment => new Date(segment.departure.at).toLocaleString()).join(', ')).join(', '),
-            arrival: storedData.flightData.map(flight => flight.itineraries[0].segments.map(segment => new Date(segment.arrival.at).toLocaleString()).join(', ')).join(', '),
             transactionId: data.details.transactionId,
             amount: storedData.amount,
             bookingReference: bookingResult.bookingDetails.bookingReference,
             airlineNames: getAirlineNames(storedData.flightData),
-            additionalBaggage: storedData.additionalBaggage
+            additionalBaggage: storedData.additionalBaggage,
+            
+            // Agregar estructura de flights para todos los itinerarios
+            flights: storedData.flightData.flatMap(flight => 
+              flight.itineraries.map((itinerary, itineraryIndex) => ({
+                type: itineraryIndex === 0 ? 'OUTBOUND' : 'RETURN',
+                segments: itinerary.segments.map(segment => {
+                  const departureDate = new Date(segment.departure.at);
+                  const arrivalDate = new Date(segment.arrival.at);
+                  return {
+                    flightNumber: `${segment.carrierCode}${segment.number}`,
+                    origin: segment.departure.iataCode,
+                    destination: segment.arrival.iataCode,
+                    departure: `${segment.departure.iataCode} - ${departureDate.toLocaleString()}`,
+                    arrival: `${segment.arrival.iataCode} - ${arrivalDate.toLocaleString()}`,
+                    carrierCode: segment.carrierCode
+                  };
+                })
+              }))
+            ),
+            
+            // Mantener los campos originales para compatibilidad
+            flightNumber: storedData.flightData[0].itineraries[0].segments[0].carrierCode + storedData.flightData[0].itineraries[0].segments[0].number,
+            origin: storedData.flightData[0].itineraries[0].segments[0].departure.iataCode,
+            destination: storedData.flightData[0].itineraries[0].segments[0].arrival.iataCode,
+            departure: `${storedData.flightData[0].itineraries[0].segments[0].departure.iataCode} - ${new Date(storedData.flightData[0].itineraries[0].segments[0].departure.at).toLocaleString()}`,
+            arrival: `${storedData.flightData[0].itineraries[0].segments[0].arrival.iataCode} - ${new Date(storedData.flightData[0].itineraries[0].segments[0].arrival.at).toLocaleString()}`
           };
 
           router.push(`/confirmation?ticketDetails=${encodeURIComponent(JSON.stringify(ticketDetails))}`);

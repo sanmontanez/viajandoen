@@ -964,6 +964,9 @@ video {
 .pb-10 {
   padding-bottom: 2.5rem;
 }
+.pb-3 {
+  padding-bottom: 0.75rem;
+}
 .pb-4 {
   padding-bottom: 1rem;
 }
@@ -1127,6 +1130,10 @@ input{
 
 .bg-footer{
   background-color: rgb(11 117 144);
+}
+
+.last\:border-b-0:last-child {
+  border-bottom-width: 0px;
 }
 
 .hover\:bg-blue-600:hover {

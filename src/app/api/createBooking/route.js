@@ -36,7 +36,7 @@ export async function POST(req) {
       });
     }
 
-    // Generate a unique booking reference instead of getting it from Amadeus
+    // Generate a unique booking reference
     const bookingReference = generateBookingReference();
     
     // Create a unique order ID
@@ -51,7 +51,7 @@ export async function POST(req) {
       bookingDetails: {
         id: orderId,
         bookingReference: bookingReference,
-        status: 'CONFIRMED', // Status hardcoded to CONFIRMED since we're not using Amadeus
+        status: 'CONFIRMED',
       },
       createdAt: new Date()
     });
@@ -60,21 +60,54 @@ export async function POST(req) {
 
     console.log('Booking saved to database:', booking);
 
-    // Prepare the response - keep the same structure as before
+    // Extract payment information from the structure
+    const payment = paymentDetails.paymentDetails || paymentDetails;
+
+    // Prepare flights information - handle all itineraries and segments
+    const flightsInfo = [];
+
+    // Process each flight offer
+    flightData.forEach(flight => {
+      // Process each itinerary (outbound, return, etc.)
+      flight.itineraries.forEach((itinerary, itineraryIndex) => {
+        const itineraryInfo = {
+          type: itineraryIndex === 0 ? 'OUTBOUND' : 'RETURN',
+          segments: []
+        };
+
+        // Process each segment in the itinerary
+        itinerary.segments.forEach(segment => {
+          const departureDate = new Date(segment.departure.at);
+          const arrivalDate = new Date(segment.arrival.at);
+          
+          itineraryInfo.segments.push({
+            flightNumber: `${segment.carrierCode}${segment.number}`,
+            origin: segment.departure.iataCode,
+            destination: segment.arrival.iataCode,
+            departure: `${segment.departure.iataCode} - ${departureDate.toLocaleString('es-CL')}`,
+            arrival: `${segment.arrival.iataCode} - ${arrivalDate.toLocaleString('es-CL')}`,
+            departureDateTime: segment.departure.at,
+            arrivalDateTime: segment.arrival.at,
+            carrierCode: segment.carrierCode
+          });
+        });
+
+        flightsInfo.push(itineraryInfo);
+      });
+    });
+
+    // Prepare the response data
     const responseData = {
       bookingDetails: {
         id: booking.orderId,
         bookingReference: bookingReference,
         status: 'CONFIRMED',
         passengerName: `${passengerData.firstName} ${passengerData.lastName}`,
-        flightInfo: flightData.map(flight => ({
-          departureDate: flight.itineraries[0].segments[0].departure.at,
-          arrivalDate: flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.at,
-          origin: flight.itineraries[0].segments[0].departure.iataCode,
-          destination: flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode,
-        })),
-        amount: paymentDetails.paymentDetails?.amount || paymentDetails.amount,
-        currency: paymentDetails.paymentDetails?.currency || paymentDetails.currency || 'CLP',
+        passengerEmail: passengerData.email,
+        flights: flightsInfo,
+        amount: payment.amount,
+        currency: payment.currency || 'CLP',
+        transactionId: payment.transactionId || payment.authorizationCode,
       }
     };
 
