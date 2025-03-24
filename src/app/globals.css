@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  @apply font-sans;
+  color: rgb(var(--foreground-rgb));
+  background: #fff;
+
+}
+
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+p{
+color: black;
+}
+h3{
+  color: #000;
+}
+h2{
+  color: #000;
+}
+input{
+  color: #000;
+}
+.mr-4{
+  color: #000;
+}
+
+.home{
+  background-image: url(/public/venecia.jpg);
+}
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) 150px;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.bg-footer{
+  background-color: rgb(11 117 144);
+}
