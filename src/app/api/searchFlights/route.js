@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import amadeus from '../../../lib/amadeus';
 
-const MARGIN_PERCENTAGE = 0.15; // Margen de ganancia por defecto del 15%
+const MARGIN_PERCENTAGE = 0.10; // Margen de ganancia por defecto del 15%
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 segundos
 

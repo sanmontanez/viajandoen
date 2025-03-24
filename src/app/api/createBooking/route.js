@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import amadeus from '../../../lib/amadeus';
 import connectToDatabase from '../../../lib/mongodb';
 import Booking from '../../../models/Booking';
 
@@ -18,97 +17,55 @@ export async function POST(req) {
     await connectToDatabase();
 
     // Add additional baggage information to the flight data
-    flightData.forEach((flight, index) => {
-      flight.travelerPricings.forEach((travelerPricing) => {
-        travelerPricing.fareDetailsBySegment.forEach((fareDetail) => {
-          if (!fareDetail.includedCheckedBags) {
-            fareDetail.includedCheckedBags = {};
-          }
+    if (additionalBaggage) {
+      flightData.forEach((flight, index) => {
+        flight.travelerPricings.forEach((travelerPricing) => {
+          travelerPricing.fareDetailsBySegment.forEach((fareDetail) => {
+            if (!fareDetail.includedCheckedBags) {
+              fareDetail.includedCheckedBags = {};
+            }
 
-          // Add the additional baggage to the fare details
-          fareDetail.includedCheckedBags.quantity = 
-            (fareDetail.includedCheckedBags.quantity || 0) + 
-            (additionalBaggage?.[index]?.firstBag || 0) +
-            (additionalBaggage?.[index]?.secondBag || 0) +
-            (additionalBaggage?.[index]?.thirdBag || 0);
-
-          // Optionally, include carry-on information if needed
-          // fareDetail.includedCabinBags = { quantity: (fareDetail.includedCabinBags?.quantity || 0) + (additionalBaggage[index]?.carryOn || 0) };
+            // Add the additional baggage to the fare details
+            fareDetail.includedCheckedBags.quantity = 
+              (fareDetail.includedCheckedBags.quantity || 0) + 
+              (additionalBaggage?.[index]?.firstBag || 0) +
+              (additionalBaggage?.[index]?.secondBag || 0) +
+              (additionalBaggage?.[index]?.thirdBag || 0);
+          });
         });
       });
-    });
-
-    // Create the flight order with Amadeus
-    const amadeusResponse = await amadeus.booking.flightOrders.post(
-      JSON.stringify({
-        data: {
-          type: 'flight-order',
-          flightOffers: flightData,
-          travelers: [
-            {
-              id: '1',
-              dateOfBirth: passengerData.dateOfBirth,
-              name: {
-                firstName: passengerData.firstName,
-                lastName: passengerData.lastName,
-              },
-              contact: {
-                emailAddress: passengerData.email,
-                phones: [
-                  {
-                    deviceType: 'MOBILE',
-                    countryCallingCode: passengerData.phone.slice(1, 3), // Adjust to your country code extraction logic
-                    number: passengerData.phone.slice(3), // Adjust to your phone number extraction logic
-                  },
-                ],
-              },
-              documents: [
-                {
-                  documentType: passengerData.documentType.toUpperCase(),
-                  number: passengerData.documentNumber,
-                  expiryDate: passengerData.documentExpirationDate,
-                  issuanceCountry: passengerData.nationality,
-                  nationality: passengerData.nationality,
-                  holder: true,
-                },
-              ],
-            },
-          ],
-        },
-      })
-    );
-
-    console.log('Amadeus response:', amadeusResponse.data);
-
-    const bookingReference = amadeusResponse.data.associatedRecords?.[0]?.reference;
-
-    if (!bookingReference) {
-      throw new Error('Booking reference not found in Amadeus response');
     }
+
+    // Generate a unique booking reference instead of getting it from Amadeus
+    const bookingReference = generateBookingReference();
+    
+    // Create a unique order ID
+    const orderId = `ORDER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     // Create and save the booking in our database
     const booking = new Booking({
-      orderId: amadeusResponse.data.id,
+      orderId: orderId,
       passengerData,
       flightData,
       paymentDetails,
       bookingDetails: {
-        id: amadeusResponse.data.id,
+        id: orderId,
         bookingReference: bookingReference,
-        status: amadeusResponse.data.status,
+        status: 'CONFIRMED', // Status hardcoded to CONFIRMED since we're not using Amadeus
       },
+      createdAt: new Date()
     });
 
     await booking.save();
 
     console.log('Booking saved to database:', booking);
 
-    // Prepare the response
+    // Prepare the response - keep the same structure as before
     const responseData = {
       bookingDetails: {
         id: booking.orderId,
         bookingReference: bookingReference,
-        status: amadeusResponse.data.status,
+        status: 'CONFIRMED',
         passengerName: `${passengerData.firstName} ${passengerData.lastName}`,
         flightInfo: flightData.map(flight => ({
           departureDate: flight.itineraries[0].segments[0].departure.at,
@@ -116,8 +73,8 @@ export async function POST(req) {
           origin: flight.itineraries[0].segments[0].departure.iataCode,
           destination: flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1].arrival.iataCode,
         })),
-        amount: paymentDetails.amount,
-        currency: paymentDetails.currency,
+        amount: paymentDetails.paymentDetails?.amount || paymentDetails.amount,
+        currency: paymentDetails.paymentDetails?.currency || paymentDetails.currency || 'CLP',
       }
     };
 
@@ -128,4 +85,14 @@ export async function POST(req) {
     console.error('Error creating booking:', error);
     return NextResponse.json({ error: 'Failed to create booking', details: error.message }, { status: 500 });
   }
+}
+
+// Generate a unique booking reference (6 character alphanumeric code)
+function generateBookingReference() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let reference = '';
+  for (let i = 0; i < 6; i++) {
+    reference += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return reference;
 }
