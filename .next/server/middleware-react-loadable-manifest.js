@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"app/results/page.js -> ./FlightResultsContent\":{\"id\":\"app/results/page.js -> ./FlightResultsContent\",\"files\":[\"static/chunks/_app-pages-browser_src_app_results_FlightResultsContent_js.js\"]}}"
