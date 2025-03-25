@@ -1,9 +1,10 @@
 {
   "pages": {
-    "/confirmation/page": [
+    "/results/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/confirmation/page.js"
+      "static/css/app/results/page.css",
+      "static/chunks/app/results/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,33 +12,16 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/payment-response/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/payment-response/page.js"
-    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/page.css",
       "static/chunks/app/page.js"
     ],
-    "/results/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/results/page.css",
-      "static/chunks/app/results/page.js"
-    ],
-    "/checkout/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/checkout/page.css",
-      "static/chunks/app/checkout/page.js"
-    ],
-    "/consult/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/consult/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

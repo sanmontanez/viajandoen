@@ -212,7 +212,6 @@ const iataToCity = {
   GPI: 'Guapi - Juan Casiano',
 
   // Argentina
-  GRU: 'São Paulo - Guarulhos',
   EZE: 'Buenos Aires - Ministro Pistarini (Ezeiza)',
   AEP: 'Buenos Aires - Aeroparque Jorge Newbery',
   COR: 'Cordoba - Ingeniero Ambrosio Taravella',

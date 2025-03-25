@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import amadeus from '../../../lib/amadeus';
 
-const MARGIN_PERCENTAGE = 0.10; // Margen de ganancia por defecto del 15%
+const MARGIN_PERCENTAGE = 0.10; // Margen de ganancia por defecto del 10%
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 segundos
 
@@ -43,18 +43,8 @@ export async function POST(request) {
 
     const flightOffers = response.data.map((offer) => {
       const originalPrice = parseFloat(offer.price.total);
-      const departureMonth = new Date(departureDate).getMonth();
-      let marginPercentage = MARGIN_PERCENTAGE;
-
-      if (departureMonth === 8) { // Septiembre es el mes 8 (0 indexado)
-        if (destination === 'GIG') {
-          marginPercentage = 0.1; // Ajusta esto según sea necesario
-        } else {
-          marginPercentage = 0.0; // Ajusta esto según sea necesario
-        }
-      }
-
-      const priceWithMargin = (originalPrice * (1 + marginPercentage)).toFixed(2);
+      // Aplicar el margen estándar sin condiciones
+      const priceWithMargin = (originalPrice * (1 + MARGIN_PERCENTAGE)).toFixed(2);
 
       return {
         ...offer,
